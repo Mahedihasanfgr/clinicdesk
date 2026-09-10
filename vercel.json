@@ -1,0 +1,15 @@
+{
+  "version": 2,
+  "buildCommand": "cd \"Clinic Software\" && npm install && npm run build",
+  "outputDirectory": "Clinic Software/dist",
+  "rewrites": [
+    {
+      "source": "/api/(.*)",
+      "destination": "/api"
+    },
+    {
+      "source": "/(.*)",
+      "destination": "/index.html"
+    }
+  ]
+}

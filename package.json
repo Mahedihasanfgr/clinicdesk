@@ -1,0 +1,25 @@
+{
+  "name": "medical-software",
+  "version": "1.0.0",
+  "type": "module",
+  "private": true,
+  "scripts": {
+    "build": "cd \"Clinic Software\" && npm install && npm run build",
+    "start": "node clinic-backend/server.js",
+    "dev:backend": "cd clinic-backend && node --watch server.js",
+    "dev:frontend": "cd \"Clinic Software\" && npm run dev",
+    "dev": "node clinic-backend/server.js"
+  },
+  "dependencies": {
+    "@whiskeysockets/baileys": "^7.0.0-rc.9",
+    "bcryptjs": "^3.0.3",
+    "cors": "^2.8.6",
+    "dotenv": "^17.4.2",
+    "express": "^5.2.1",
+    "jsonwebtoken": "^9.0.3",
+    "pdfkit": "^0.18.0",
+    "pg": "^8.20.0",
+    "qrcode": "^1.5.4",
+    "qrcode-terminal": "^0.12.0"
+  }
+}
