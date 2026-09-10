@@ -195,7 +195,7 @@ export default function WhatsAppPage() {
               <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
                 <AlertCircle size={18} color="#D97706" style={{ flexShrink: 0 }} />
                 <span>
-                  {qr ? "Pairing QR active — scan with WhatsApp" : "Connecting to local WhatsApp daemon..."}
+                  {qr ? "Pairing QR active — scan with WhatsApp" : "Connecting to WhatsApp Gateway..."}
                 </span>
               </div>
               <Button
@@ -272,7 +272,7 @@ export default function WhatsAppPage() {
                   }}
                 >
                   <RefreshCw size={12} className="animate-spin" style={{ animation: "spin 3s linear infinite" }} />
-                  <span>Daemon active. Auto-refreshes every 3.5s {lastChecked ? `(Checked ${lastChecked})` : ""}</span>
+                  <span>Gateway active. Auto-refreshes every 3.5s {lastChecked ? `(Checked ${lastChecked})` : ""}</span>
                 </div>
               </div>
             ) : (
@@ -288,10 +288,10 @@ export default function WhatsAppPage() {
               >
                 <Smartphone size={36} color={tokens.colors.primary[600]} style={{ marginBottom: 12, opacity: 0.8 }} />
                 <div style={{ fontSize: 15, fontWeight: 700, color: tokens.colors.slate[800], marginBottom: 4 }}>
-                  Initializing WhatsApp Daemon...
+                  Initializing WhatsApp Gateway...
                 </div>
                 <p style={{ fontSize: 13, color: tokens.colors.slate[500], maxWidth: 380, margin: "0 auto 16px" }}>
-                  The backend is establishing a secure pairing session with WhatsApp Web servers.
+                  Establishing a secure pairing connection with WhatsApp for automated prescription delivery.
                 </p>
                 <Button variant="primary" size="md" icon={RefreshCw} onClick={fetchStatus} loading={isRefreshing}>
                   Check Status Now

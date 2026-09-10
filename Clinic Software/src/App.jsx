@@ -177,7 +177,7 @@ export default function App() {
             Synchronizing Clinical Records
           </div>
           <div style={{ fontSize: 13, color: "#94A3B8" }}>
-            Connecting to PostgreSQL for #{user.clinicCode}...
+            Loading clinical workspace for #{user.clinicCode}...
           </div>
         </div>
       </div>

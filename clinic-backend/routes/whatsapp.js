@@ -94,13 +94,23 @@ router.post("/send", auth, async (req, res) => {
     if (!getConnectionStatus()) return res.status(503).json({ error: "WhatsApp not connected" });
     if (!patient?.contact) return res.status(400).json({ error: "Patient has no contact number" });
 
+    let clinicDetails = null;
+    if (req.clinicId && req.pool) {
+      try {
+        const cRes = await req.pool.query("SELECT * FROM clinics WHERE id = $1", [req.clinicId]);
+        if (cRes.rows[0]) clinicDetails = cRes.rows[0];
+      } catch (e) {
+        console.warn("Could not fetch clinic details for PDF:", e.message);
+      }
+    }
+
     const doctorInfo = {
-      name: req.user?.name || DOCTOR_INFO.name,
-      degree: process.env.DOCTOR_DEGREE || DOCTOR_INFO.degree,
-      clinic: req.user?.clinicName || DOCTOR_INFO.clinic,
-      address: process.env.CLINIC_ADDRESS || DOCTOR_INFO.address,
-      phone: process.env.CLINIC_PHONE || DOCTOR_INFO.phone,
-      reg: process.env.DOCTOR_REG || DOCTOR_INFO.reg,
+      name: clinicDetails?.doctor_name || req.user?.name || DOCTOR_INFO.name,
+      degree: clinicDetails?.degree || process.env.DOCTOR_DEGREE || DOCTOR_INFO.degree || "MBBS, General Physician",
+      clinic: clinicDetails?.clinic_name || req.user?.clinicName || DOCTOR_INFO.clinic,
+      address: clinicDetails?.address || process.env.CLINIC_ADDRESS || DOCTOR_INFO.address || "Clinical Health Centre",
+      phone: clinicDetails?.phone || process.env.CLINIC_PHONE || DOCTOR_INFO.phone || "",
+      reg: clinicDetails?.reg_no || process.env.DOCTOR_REG || DOCTOR_INFO.reg || "",
     };
     const pdfBuffer = await generatePrescriptionPDF(patient, visit, doctorInfo);
     console.log(`📄 PDF generated: ${pdfBuffer.length} bytes`);

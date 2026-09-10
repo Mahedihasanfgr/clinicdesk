@@ -143,7 +143,7 @@ export default function Register({ onBack }) {
             Clinic Registered Successfully!
           </h2>
           <p style={{ fontSize: 14, color: tokens.colors.slate[500], marginBottom: 26, lineHeight: 1.5 }}>
-            Your centralized clinical workspace and doctor credentials have been provisioned on PostgreSQL cloud.
+            Your clinical workspace and doctor credentials are fully configured and ready to use.
           </p>
 
           <div
@@ -363,7 +363,7 @@ export default function Register({ onBack }) {
 
           <div style={{ display: "flex", flexDirection: "column", gap: 12 }}>
             {[
-              "Automated single-database schema initialization",
+              "Instant setup with zero complex configuration or installation",
               "Unlimited patient records and prescription templates",
               "WhatsApp gateway ready for mobile PDF alerts",
             ].map((text, i) => (

@@ -11,7 +11,7 @@ import {
   EyeOff,
   ArrowRight,
   ShieldCheck,
-  Database,
+  Cloud,
   MessageSquare,
   Sparkles,
   AlertCircle,
@@ -180,9 +180,9 @@ export default function Login({ onLogin, onShowRegister }) {
           {/* Key Value Highlights */}
           <div style={{ display: "flex", flexDirection: "column", gap: 14 }}>
             {[
-              { title: "Instant WhatsApp PDF Transmission", desc: "Prescriptions sent immediately upon consultation save" },
-              { title: "Universal Single-Database Architecture", desc: "Zero-latency multi-clinic cloud synchronization" },
-              { title: "Rapid Rx Templating & Dosing Engine", desc: "Finish standard prescriptions in less than 30 seconds" },
+              { title: "Instant WhatsApp Prescriptions", desc: "Branded PDF Rx delivered directly to patient mobile phones" },
+              { title: "Seamless Multi-Device Sync", desc: "Access patient files and OPD queues from any clinic desktop or tablet" },
+              { title: "Rapid Rx Templating & Dosing", desc: "Finish repetitive standard prescriptions in less than 30 seconds" },
             ].map((item, idx) => (
               <div key={idx} style={{ display: "flex", alignItems: "flex-start", gap: 12 }}>
                 <div
@@ -519,15 +519,15 @@ export default function Login({ onLogin, onShowRegister }) {
           >
             <div style={{ display: "flex", alignItems: "center", gap: 5 }}>
               <ShieldCheck size={14} color="#0D9488" />
-              <span>256-Bit Encrypted</span>
+              <span>Encrypted Records</span>
             </div>
             <div style={{ display: "flex", alignItems: "center", gap: 5 }}>
-              <Database size={14} color="#0284C7" />
-              <span>PostgreSQL Cloud</span>
+              <Cloud size={14} color="#0284C7" />
+              <span>Secure Cloud Backup</span>
             </div>
             <div style={{ display: "flex", alignItems: "center", gap: 5 }}>
               <MessageSquare size={14} color="#10B981" />
-              <span>WhatsApp Daemon</span>
+              <span>Automated WhatsApp</span>
             </div>
           </div>
         </div>

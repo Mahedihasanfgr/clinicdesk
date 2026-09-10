@@ -79,10 +79,8 @@ export default function VisitForm({ patient, lastVisit, templates, onSave, onClo
     setSending(true);
     try {
       const savedVisit = await onSave(form);
-      const visitData = { ...form, id: savedVisit?.visitId || "" };
+      const visitData = { ...form, id: savedVisit?.id || savedVisit?.visitId || "" };
       printPrescription(patient, visitData);
-      const wa = await apiSendWhatsApp(patient, visitData);
-      if (wa.error) console.warn("WhatsApp:", wa.error);
     } catch (e) {
       setErr(e.message || "Failed to save visit record.");
     } finally {
