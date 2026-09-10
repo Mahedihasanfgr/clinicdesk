@@ -25,6 +25,14 @@ function clearSession() {
 }
 
 export async function connectWhatsApp() {
+  if (sock) {
+    try {
+      sock.ev.removeAllListeners("connection.update");
+      sock.ev.removeAllListeners("creds.update");
+      sock.end(undefined);
+    } catch {}
+  }
+
   const { state, saveCreds } = await useMultiFileAuthState(SESSION_PATH);
   const { version } = await fetchLatestBaileysVersion();
 
@@ -47,11 +55,11 @@ export async function connectWhatsApp() {
 
     if (connection === "close") {
       isConnected = false;
-      currentQR = null;
       const statusCode = new Boom(lastDisconnect?.error)?.output?.statusCode;
       const loggedOut = statusCode === DisconnectReason.loggedOut;
       console.log("WhatsApp disconnected. Status:", statusCode, "Logged out:", loggedOut);
       if (loggedOut) {
+        currentQR = null;
         clearSession();
       }
       setTimeout(() => {
