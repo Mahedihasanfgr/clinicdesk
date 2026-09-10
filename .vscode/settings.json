@@ -1,0 +1,10 @@
+{
+  "git.repositoryScanMaxDepth": 0,
+  "git.autoRepositoryDetection": false,
+  "git.ignoredRepositories": [
+    "Clinic Software",
+    "clinic-backend",
+    "c:/Users/HP/Medical Software/Clinic Software",
+    "c:/Users/HP/Medical Software/clinic-backend"
+  ]
+}
