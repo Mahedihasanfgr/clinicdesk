@@ -3,9 +3,9 @@ import dotenv from "dotenv";
 import fs from "fs";
 import path from "path";
 import { fileURLToPath } from "url";
-dotenv.config();
-
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
+dotenv.config({ path: path.join(__dirname, ".env") });
+dotenv.config();
 
 export async function setupDatabase() {
   const config = process.env.DATABASE_URL
