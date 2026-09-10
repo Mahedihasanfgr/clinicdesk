@@ -1,5 +1,23 @@
 import { S } from "../styles/styles";
 import { today, fmtDate } from "../utils/helpers";
+import heroBg from "../assets/clinic_hero_banner.jpg";
+import {
+  Users,
+  CalendarCheck,
+  FileText,
+  HeartPulse,
+  Clock,
+  UserPlus,
+  CalendarPlus,
+  ArrowRight,
+  TrendingUp,
+  Stethoscope,
+  ChevronRight,
+  CheckCircle2,
+  AlertCircle,
+  Calendar,
+  Sparkles
+} from "lucide-react";
 
 export default function Dashboard({ patients, appointments, setActive, setSelectedPatient }) {
   const todayStr = today();
@@ -22,348 +40,464 @@ export default function Dashboard({ patients, appointments, setActive, setSelect
 
   const stats = [
     {
-      label: "Total OPD Patients",
+      label: "Total Registered Patients",
       value: patients.length,
-      icon: "🏥",
+      icon: Users,
       color: "#0D9488",
-      bg: "#F0FDF4",
+      bg: "#F0FDFA",
       border: "#99F6E4",
-      trend: "Registered Records"
+      trend: "OPD Database",
+      trendIcon: TrendingUp,
     },
     {
       label: "Today's Appointments",
       value: todayApts.length,
-      icon: "📅",
+      icon: CalendarCheck,
       color: "#0284C7",
       bg: "#F0F9FF",
       border: "#BAE6FD",
-      trend: `${todayApts.filter(a => a.status === 'confirmed').length} Confirmed`
+      trend: `${todayApts.filter(a => a.status === 'confirmed').length} Confirmed`,
+      trendIcon: CheckCircle2,
     },
     {
-      label: "Encounters & Prescriptions",
+      label: "Clinical Encounters & Rx",
       value: totalVisits,
-      icon: "💊",
+      icon: FileText,
       color: "#059669",
       bg: "#ECFDF5",
       border: "#A7F3D0",
-      trend: "Clinical Visits"
+      trend: "Documented Visits",
+      trendIcon: HeartPulse,
     },
     {
-      label: "Follow-ups Due (7d)",
+      label: "Follow-ups Due (7 Days)",
       value: upcomingFollowups.length,
-      icon: "🩺",
+      icon: Clock,
       color: "#D97706",
       bg: "#FFFBEB",
       border: "#FDE68A",
-      trend: `${upcomingFollowups.filter(f => f.followup_date === todayStr).length} Due Today`
+      trend: `${upcomingFollowups.filter(f => f.followup_date === todayStr).length} Due Today`,
+      trendIcon: AlertCircle,
     },
   ];
 
   return (
-    <div className="animate-fade">
-      {/* Hero Welcome Banner */}
+    <div className="animate-fade" style={{ display: "flex", flexDirection: "column", gap: 28 }}>
+      {/* High-End Hero Welcome Banner */}
       <div style={{
-        background: "linear-gradient(135deg, #064E3B 0%, #0F172A 100%)",
-        borderRadius: 20,
-        padding: "32px 36px",
-        marginBottom: 28,
-        color: "#FFFFFF",
-        boxShadow: "0 10px 25px -5px rgba(6, 78, 59, 0.25)",
-        display: "flex",
-        alignItems: "center",
-        justifyContent: "space-between",
         position: "relative",
-        overflow: "hidden"
+        borderRadius: 22,
+        overflow: "hidden",
+        backgroundImage: `url(${heroBg})`,
+        backgroundSize: "cover",
+        backgroundPosition: "center right",
+        boxShadow: "0 10px 30px -5px rgba(11, 19, 43, 0.35)",
+        border: "1px solid rgba(255, 255, 255, 0.15)",
       }}>
+        {/* Scrim overlay for high contrast readability */}
         <div style={{
           position: "absolute",
-          right: "-5%",
-          top: "-50%",
-          width: 300,
-          height: 300,
-          background: "radial-gradient(circle, rgba(52, 211, 153, 0.25) 0%, rgba(0, 0, 0, 0) 70%)",
-          borderRadius: "50%"
+          inset: 0,
+          background: "linear-gradient(90deg, rgba(11, 19, 43, 0.94) 0%, rgba(15, 23, 42, 0.85) 50%, rgba(15, 23, 42, 0.4) 100%)",
+          backdropFilter: "blur(2px)",
         }} />
 
-        <div style={{ position: "relative", zIndex: 2 }}>
-          <div style={{ display: "inline-flex", alignItems: "center", gap: 8, background: "rgba(255, 255, 255, 0.12)", padding: "4px 14px", borderRadius: 20, fontSize: 12, fontWeight: 700, color: "#34D399", marginBottom: 12 }}>
-            <span>🩺 Doctor Overview • {fmtDate(todayStr)}</span>
-          </div>
-          <h1 style={{ fontSize: 26, fontWeight: 800, letterSpacing: "-0.02em", marginBottom: 6 }}>
-            Welcome to Clinical Dashboard 👋
-          </h1>
-          <p style={{ fontSize: 14, color: "#D1D5DB", maxWidth: 520 }}>
-            Here is your daily medical overview. You have {todayApts.length} patient appointment(s) scheduled today.
-          </p>
-        </div>
+        <div style={{
+          position: "relative",
+          zIndex: 2,
+          padding: "36px 40px",
+          display: "flex",
+          alignItems: "center",
+          justifyContent: "space-between",
+          flexWrap: "wrap",
+          gap: 20,
+          color: "#FFFFFF",
+        }}>
+          <div>
+            <div style={{
+              display: "inline-flex",
+              alignItems: "center",
+              gap: 8,
+              background: "rgba(20, 184, 166, 0.18)",
+              border: "1px solid rgba(45, 212, 191, 0.3)",
+              padding: "5px 14px",
+              borderRadius: 20,
+              fontSize: 12.5,
+              fontWeight: 700,
+              color: "#2DD4BF",
+              marginBottom: 12,
+              backdropFilter: "blur(8px)",
+            }}>
+              <Sparkles size={14} />
+              <span>Clinical Practice Active • {fmtDate(todayStr)}</span>
+            </div>
 
-        <div style={{ display: "flex", gap: 12, position: "relative", zIndex: 2 }}>
-          <button
-            style={{
-              ...S.btn,
-              background: "#FFFFFF",
-              color: "#064E3B",
-              padding: "11px 20px",
-              fontSize: 14,
-              fontWeight: 700,
-              borderRadius: 12
-            }}
-            className="btn-interactive"
-            onClick={() => setActive("patients")}
-          >
-            <span>➕</span> New Patient OPD
-          </button>
-          <button
-            style={{
-              ...S.btn,
-              ...S.btnPrimary,
-              padding: "11px 20px",
-              fontSize: 14,
-              fontWeight: 700,
-              borderRadius: 12
-            }}
-            className="btn-interactive"
-            onClick={() => setActive("appointments")}
-          >
-            <span>📅</span> Book Appointment
-          </button>
+            <h1 style={{
+              fontSize: 28,
+              fontWeight: 800,
+              letterSpacing: "-0.03em",
+              marginBottom: 8,
+              lineHeight: 1.2,
+            }}>
+              Welcome to Your Clinical Workspace
+            </h1>
+            <p style={{
+              fontSize: 14.5,
+              color: "#CBD5E1",
+              maxWidth: 540,
+              lineHeight: 1.5,
+            }}>
+              Manage OPD patient flow, generate prescription orders, and trigger automated WhatsApp PDFs in real time.
+            </p>
+          </div>
+
+          {/* Quick Action Shortcuts */}
+          <div style={{ display: "flex", gap: 12, flexWrap: "wrap" }}>
+            <button
+              style={{
+                ...S.btn,
+                background: "linear-gradient(135deg, #0D9488 0%, #0284C7 100%)",
+                color: "#FFFFFF",
+                padding: "11px 18px",
+                borderRadius: 12,
+                fontSize: 13.5,
+                fontWeight: 700,
+                boxShadow: "0 4px 16px rgba(13, 148, 136, 0.4)",
+              }}
+              className="btn-interactive"
+              onClick={() => setActive("patients")}
+            >
+              <UserPlus size={16} />
+              <span>New Patient</span>
+            </button>
+
+            <button
+              style={{
+                ...S.btn,
+                background: "rgba(255, 255, 255, 0.12)",
+                color: "#FFFFFF",
+                border: "1px solid rgba(255, 255, 255, 0.25)",
+                backdropFilter: "blur(10px)",
+                padding: "11px 18px",
+                borderRadius: 12,
+                fontSize: 13.5,
+                fontWeight: 700,
+              }}
+              className="btn-interactive"
+              onClick={() => setActive("appointments")}
+            >
+              <CalendarPlus size={16} />
+              <span>Book Appointment</span>
+            </button>
+          </div>
         </div>
       </div>
 
-      {/* Metrics Cards Grid */}
-      <div style={{ display: "grid", gridTemplateColumns: "repeat(4, 1fr)", gap: 20, marginBottom: 28 }}>
-        {stats.map(s => (
-          <div key={s.label} style={S.statCard} className="card-hover">
-            <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between" }}>
-              <div style={{
-                width: 48,
-                height: 48,
-                borderRadius: 14,
-                background: s.bg,
-                border: `1px solid ${s.border}`,
-                display: "flex",
-                alignItems: "center",
-                justifyContent: "center",
-                fontSize: 24
-              }}>
-                {s.icon}
+      {/* 4 Stat Metric Cards */}
+      <div style={S.grid4}>
+        {stats.map((s, i) => {
+          const IconComponent = s.icon;
+          const TrendIconComponent = s.trendIcon;
+
+          return (
+            <div key={i} style={S.statCard} className="card-hover">
+              <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between" }}>
+                <span style={{ fontSize: 13, fontWeight: 700, color: "#64748B", letterSpacing: "-0.01em" }}>
+                  {s.label}
+                </span>
+                <div style={{
+                  width: 42,
+                  height: 42,
+                  borderRadius: 12,
+                  background: s.bg,
+                  border: `1px solid ${s.border}`,
+                  display: "flex",
+                  alignItems: "center",
+                  justifyContent: "center",
+                  color: s.color,
+                }}>
+                  <IconComponent size={20} strokeWidth={2.2} />
+                </div>
               </div>
-              <span style={{ fontSize: 12, fontWeight: 700, color: s.color, background: s.bg, padding: "3px 10px", borderRadius: 12, border: `1px solid ${s.border}` }}>
-                {s.trend}
-              </span>
+
+              <div>
+                <div style={{
+                  fontSize: 34,
+                  fontWeight: 800,
+                  color: "#0F172A",
+                  letterSpacing: "-0.03em",
+                  lineHeight: 1,
+                  marginBottom: 10,
+                }}>
+                  {s.value}
+                </div>
+
+                <div style={{
+                  display: "inline-flex",
+                  alignItems: "center",
+                  gap: 5,
+                  fontSize: 12,
+                  fontWeight: 600,
+                  color: s.color,
+                  background: s.bg,
+                  padding: "3px 8px",
+                  borderRadius: 6,
+                }}>
+                  <TrendIconComponent size={13} />
+                  <span>{s.trend}</span>
+                </div>
+              </div>
             </div>
-            <div>
-              <div style={{ fontSize: 32, fontWeight: 800, color: "#0F172A", letterSpacing: "-0.02em", marginTop: 12 }}>
-                {s.value}
-              </div>
-              <div style={{ fontSize: 13, color: "#64748B", fontWeight: 600, marginTop: 2 }}>
-                {s.label}
-              </div>
-            </div>
-          </div>
-        ))}
+          );
+        })}
       </div>
 
+      {/* 2-Column Clinical Workbench Grid */}
       <div style={S.grid2}>
-        {/* Today's Appointments */}
-        <div style={S.card} className="card-hover">
+        {/* Left Column: Today's OPD Appointment Queue */}
+        <div style={S.card}>
           <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 20 }}>
             <div>
-              <h3 style={{ fontSize: 17, fontWeight: 700, color: "#0F172A" }}>Today's Appointments</h3>
-              <p style={{ fontSize: 13, color: "#64748B", marginTop: 2 }}>Scheduled OPD visits for today</p>
+              <h2 style={{ fontSize: 17, fontWeight: 800, color: "#0F172A", letterSpacing: "-0.02em" }}>
+                Today's Patient Queue
+              </h2>
+              <p style={{ fontSize: 12.5, color: "#64748B", marginTop: 2 }}>
+                Appointments scheduled for {fmtDate(todayStr)}
+              </p>
             </div>
-            <button style={{ ...S.btn, ...S.btnSecondary, padding: "6px 14px", fontSize: 12 }} onClick={() => setActive("appointments")}>
-              View All →
+            <button
+              style={{ ...S.btn, ...S.btnGhost, padding: "6px 12px", fontSize: 12.5, color: "#0D9488", fontWeight: 700 }}
+              onClick={() => setActive("appointments")}
+              className="btn-interactive"
+            >
+              <span>View All</span>
+              <ChevronRight size={15} />
             </button>
           </div>
 
           {todayApts.length === 0 ? (
-            <div style={{ textAlign: "center", padding: "36px 16px", background: "#F8FAFC", borderRadius: 14, border: "1px dashed #CBD5E1" }}>
-              <div style={{ fontSize: 32, marginBottom: 8 }}>📅</div>
-              <div style={{ fontSize: 14, fontWeight: 600, color: "#475569" }}>No appointments scheduled for today</div>
-              <div style={{ fontSize: 13, color: "#94A3B8", marginTop: 4 }}>Click book appointment to add new patient consultations.</div>
+            <div style={{
+              textAlign: "center",
+              padding: "40px 20px",
+              background: "#F8FAFC",
+              borderRadius: 14,
+              border: "1px dashed #CBD5E1",
+            }}>
+              <Calendar size={36} color="#94A3B8" style={{ marginBottom: 12 }} />
+              <div style={{ fontSize: 14, fontWeight: 700, color: "#334155", marginBottom: 4 }}>
+                No appointments scheduled today
+              </div>
+              <p style={{ fontSize: 12.5, color: "#64748B", marginBottom: 16 }}>
+                Patients will show up here as they book or check in at reception.
+              </p>
+              <button
+                style={{ ...S.btn, ...S.btnPrimary, fontSize: 12.5, padding: "8px 16px" }}
+                onClick={() => setActive("appointments")}
+                className="btn-interactive"
+              >
+                <CalendarPlus size={14} />
+                <span>Book Appointment</span>
+              </button>
             </div>
           ) : (
             <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
-              {todayApts.map(a => (
-                <div
-                  key={a.id}
-                  style={{
-                    display: "flex",
-                    alignItems: "center",
-                    justifyContent: "space-between",
-                    padding: "12px 16px",
-                    borderRadius: 12,
-                    background: "#F8FAFC",
-                    border: "1px solid #E2E8F0"
-                  }}
-                >
-                  <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
-                    <div style={{
-                      width: 40,
-                      height: 40,
-                      borderRadius: "50%",
-                      background: "linear-gradient(135deg, #0D9488 0%, #0284C7 100%)",
-                      color: "#FFF",
+              {todayApts.map(a => {
+                const statusColor = a.status === "confirmed" ? "green" : a.status === "cancelled" ? "red" : "amber";
+                return (
+                  <div
+                    key={a.id}
+                    style={{
                       display: "flex",
                       alignItems: "center",
-                      justifyContent: "center",
-                      fontWeight: 700,
-                      fontSize: 14
-                    }}>
-                      {(a.patientName || a.patient_name || "P").charAt(0).toUpperCase()}
-                    </div>
-                    <div>
-                      <div style={{ fontWeight: 700, fontSize: 14, color: "#0F172A" }}>{a.patientName || a.patient_name}</div>
-                      <div style={{ fontSize: 12, color: "#64748B", marginTop: 2 }}>
-                        ⏰ {a.time} • {a.reason || "General Consultation"}
+                      justifyContent: "space-between",
+                      padding: "14px 16px",
+                      background: "#F8FAFC",
+                      borderRadius: 14,
+                      border: "1px solid #E2E8F0",
+                      transition: "all 0.18s ease",
+                    }}
+                    className="card-hover"
+                  >
+                    <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
+                      <div style={{
+                        width: 40,
+                        height: 40,
+                        borderRadius: 10,
+                        background: "#FFFFFF",
+                        border: "1px solid #E2E8F0",
+                        display: "flex",
+                        alignItems: "center",
+                        justifyContent: "center",
+                        fontWeight: 800,
+                        fontSize: 14,
+                        color: "#0D9488",
+                        boxShadow: "0 1px 2px rgba(0,0,0,0.04)",
+                      }}>
+                        {(a.patient_name || "P").slice(0, 2).toUpperCase()}
+                      </div>
+                      <div>
+                        <div style={{ fontSize: 14, fontWeight: 700, color: "#0F172A" }}>
+                          {a.patient_name}
+                        </div>
+                        <div style={{ fontSize: 12, color: "#64748B", display: "flex", alignItems: "center", gap: 8, marginTop: 2 }}>
+                          <span style={{ display: "flex", alignItems: "center", gap: 4 }}>
+                            <Clock size={12} color="#0D9488" /> {a.time || "OPD Walk-in"}
+                          </span>
+                          <span>•</span>
+                          <span>{a.contact || "No Phone"}</span>
+                        </div>
                       </div>
                     </div>
+
+                    <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
+                      <span style={S.badge(statusColor)}>
+                        {a.status || "Pending"}
+                      </span>
+
+                      {a.patient_id && (
+                        <button
+                          style={{
+                            ...S.btn,
+                            background: "#FFFFFF",
+                            color: "#0D9488",
+                            border: "1px solid #CCFBF1",
+                            padding: "6px 12px",
+                            fontSize: 12,
+                            fontWeight: 700,
+                          }}
+                          className="btn-interactive"
+                          onClick={() => {
+                            const found = patients.find(p => p.id === a.patient_id);
+                            if (found) {
+                              setSelectedPatient(found);
+                              setActive("patients");
+                            }
+                          }}
+                        >
+                          <Stethoscope size={13} />
+                          <span>Consult</span>
+                        </button>
+                      )}
+                    </div>
                   </div>
-                  <span style={S.badge(a.status === "confirmed" ? "green" : a.status === "waiting" ? "amber" : "blue")}>
-                    {a.status}
-                  </span>
-                </div>
-              ))}
+                );
+              })}
             </div>
           )}
         </div>
 
-        {/* Upcoming Follow-ups */}
-        <div style={S.card} className="card-hover">
-          <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 20 }}>
-            <div>
-              <h3 style={{ fontSize: 17, fontWeight: 700, color: "#0F172A" }}>Upcoming Follow-ups</h3>
-              <p style={{ fontSize: 13, color: "#64748B", marginTop: 2 }}>Patients due in the next 7 days</p>
+        {/* Right Column: Follow-ups Due & Recent Encounters */}
+        <div style={{ display: "flex", flexDirection: "column", gap: 24 }}>
+          {/* Upcoming Follow-ups Due Card */}
+          <div style={S.card}>
+            <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 16 }}>
+              <div>
+                <h2 style={{ fontSize: 17, fontWeight: 800, color: "#0F172A", letterSpacing: "-0.02em" }}>
+                  Follow-ups Due (Next 7 Days)
+                </h2>
+                <p style={{ fontSize: 12.5, color: "#64748B", marginTop: 2 }}>
+                  Patients scheduled for medical re-evaluation
+                </p>
+              </div>
+              <span style={S.badge("amber")}>
+                {upcomingFollowups.length} Due
+              </span>
             </div>
-            <span style={S.badge("amber")}>{upcomingFollowups.length} Pending</span>
-          </div>
 
-          {upcomingFollowups.length === 0 ? (
-            <div style={{ textAlign: "center", padding: "36px 16px", background: "#F8FAFC", borderRadius: 14, border: "1px dashed #CBD5E1" }}>
-              <div style={{ fontSize: 32, marginBottom: 8 }}>🩺</div>
-              <div style={{ fontSize: 14, fontWeight: 600, color: "#475569" }}>No upcoming follow-ups</div>
-              <div style={{ fontSize: 13, color: "#94A3B8", marginTop: 4 }}>Follow-up reminders will appear here after patient visits.</div>
-            </div>
-          ) : (
-            <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
-              {upcomingFollowups.map((f, i) => (
-                <div
-                  key={i}
-                  style={{
-                    display: "flex",
-                    alignItems: "center",
-                    justifyContent: "space-between",
-                    padding: "12px 16px",
-                    borderRadius: 12,
-                    background: "#F8FAFC",
-                    border: "1px solid #E2E8F0",
-                    cursor: "pointer"
-                  }}
-                  onClick={() => {
-                    const p = patients.find(x => x.id === f.patientId);
-                    setSelectedPatient(p);
-                    setActive("patients");
-                  }}
-                >
-                  <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
-                    <div style={{
-                      width: 40,
-                      height: 40,
-                      borderRadius: "50%",
-                      background: "#FFFBEB",
-                      border: "1px solid #FDE68A",
-                      color: "#B45309",
+            {upcomingFollowups.length === 0 ? (
+              <div style={{ textAlign: "center", padding: "28px 16px", color: "#94A3B8", fontSize: 13 }}>
+                No clinical follow-ups scheduled for the upcoming week.
+              </div>
+            ) : (
+              <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
+                {upcomingFollowups.slice(0, 4).map((f, idx) => (
+                  <div
+                    key={idx}
+                    style={{
                       display: "flex",
                       alignItems: "center",
-                      justifyContent: "center",
-                      fontWeight: 700,
-                      fontSize: 14
-                    }}>
-                      🩺
-                    </div>
+                      justifyContent: "space-between",
+                      padding: "10px 14px",
+                      borderRadius: 10,
+                      background: "#FFFBEB",
+                      border: "1px solid #FDE68A",
+                    }}
+                  >
                     <div>
-                      <div style={{ fontWeight: 700, fontSize: 14, color: "#0F172A" }}>{f.patientName}</div>
-                      <div style={{ fontSize: 12, color: "#64748B", marginTop: 2 }}>{f.followup_note || "Scheduled Follow-up"}</div>
+                      <div style={{ fontSize: 13.5, fontWeight: 700, color: "#78350F" }}>
+                        {f.patientName}
+                      </div>
+                      <div style={{ fontSize: 12, color: "#92400E", marginTop: 1 }}>
+                        {f.followup_note || "Scheduled routine check"}
+                      </div>
+                    </div>
+                    <div style={{ textAlign: "right" }}>
+                      <span style={{ fontSize: 12, fontWeight: 700, color: "#B45309" }}>
+                        {fmtDate(f.followup_date)}
+                      </span>
                     </div>
                   </div>
-                  <div style={{ textAlign: "right" }}>
-                    <span style={S.badge(f.followup_date === todayStr ? "red" : "slate")}>
-                      {f.followup_date === todayStr ? "Due Today" : fmtDate(f.followup_date)}
+                ))}
+              </div>
+            )}
+          </div>
+
+          {/* Recent Prescriptions & Visits Card */}
+          <div style={S.card}>
+            <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 16 }}>
+              <div>
+                <h2 style={{ fontSize: 17, fontWeight: 800, color: "#0F172A", letterSpacing: "-0.02em" }}>
+                  Recent Consultations
+                </h2>
+                <p style={{ fontSize: 12.5, color: "#64748B", marginTop: 2 }}>
+                  Latest patient encounters documented
+                </p>
+              </div>
+              <button
+                style={{ ...S.btn, ...S.btnGhost, padding: "4px 8px", fontSize: 12, color: "#0D9488", fontWeight: 700 }}
+                onClick={() => setActive("patients")}
+              >
+                All Records →
+              </button>
+            </div>
+
+            {recentVisits.length === 0 ? (
+              <div style={{ textAlign: "center", padding: "28px 16px", color: "#94A3B8", fontSize: 13 }}>
+                No patient consultations recorded yet.
+              </div>
+            ) : (
+              <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
+                {recentVisits.map((v, i) => (
+                  <div
+                    key={i}
+                    style={{
+                      display: "flex",
+                      alignItems: "center",
+                      justifyContent: "space-between",
+                      padding: "10px 14px",
+                      borderRadius: 10,
+                      background: "#F8FAFC",
+                      border: "1px solid #E2E8F0",
+                    }}
+                    className="card-hover"
+                  >
+                    <div>
+                      <div style={{ fontSize: 13.5, fontWeight: 700, color: "#0F172A" }}>
+                        {v.patientName}
+                      </div>
+                      <div style={{ fontSize: 12, color: "#64748B", marginTop: 2 }}>
+                        {v.diagnosis || v.chief_complaint || "General Consultation"}
+                      </div>
+                    </div>
+                    <span style={{ fontSize: 12, color: "#94A3B8", fontWeight: 600 }}>
+                      {fmtDate(v.date)}
                     </span>
                   </div>
-                </div>
-              ))}
-            </div>
-          )}
-        </div>
-      </div>
-
-      {/* Recent Encounters / Prescriptions */}
-      <div style={S.card} className="card-hover">
-        <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 20 }}>
-          <div>
-            <h3 style={{ fontSize: 17, fontWeight: 700, color: "#0F172A" }}>Recent Clinical Encounters & Prescriptions</h3>
-            <p style={{ fontSize: 13, color: "#64748B", marginTop: 2 }}>Latest patient consultations and diagnosis history</p>
-          </div>
-          <button style={{ ...S.btn, ...S.btnSecondary, padding: "6px 14px", fontSize: 12 }} onClick={() => setActive("patients")}>
-            Manage OPD Patients →
-          </button>
-        </div>
-
-        {recentVisits.length === 0 ? (
-          <div style={{ textAlign: "center", padding: "36px 16px", background: "#F8FAFC", borderRadius: 14, border: "1px dashed #CBD5E1" }}>
-            <div style={{ fontSize: 32, marginBottom: 8 }}>💊</div>
-            <div style={{ fontSize: 14, fontWeight: 600, color: "#475569" }}>No clinical visits recorded yet</div>
-            <div style={{ fontSize: 13, color: "#94A3B8", marginTop: 4 }}>Add clinical visits and prescriptions from the Patients directory.</div>
-          </div>
-        ) : (
-          <div style={S.tableWrap}>
-            <table style={S.table}>
-              <thead>
-                <tr>
-                  <th style={S.th}>Patient Name</th>
-                  <th style={S.th}>Visit Date</th>
-                  <th style={S.th}>Diagnosis / Complaint</th>
-                  <th style={S.th}>Fee</th>
-                  <th style={{ ...S.th, textAlign: "right" }}>Action</th>
-                </tr>
-              </thead>
-              <tbody>
-                {recentVisits.map(v => (
-                  <tr key={v.id} style={{ transition: "background 0.15s" }}>
-                    <td style={S.td}>
-                      <div style={{ fontWeight: 700, color: "#0F172A" }}>{v.patientName}</div>
-                      <div style={{ fontSize: 12, color: "#94A3B8" }}>OPD: {v.patientId}</div>
-                    </td>
-                    <td style={S.td}>
-                      <span style={S.badge("teal")}>{fmtDate(v.date)}</span>
-                    </td>
-                    <td style={S.td}>
-                      <div style={{ fontWeight: 600, color: "#334155" }}>{v.diagnosis || v.chief_complaint || "Routine Checkup"}</div>
-                      {v.notes && <div style={{ fontSize: 12, color: "#64748B", marginTop: 2 }}>{v.notes}</div>}
-                    </td>
-                    <td style={S.td}>
-                      <span style={{ fontWeight: 700, color: "#059669" }}>₹{v.fee || 0}</span>
-                    </td>
-                    <td style={{ ...S.td, textAlign: "right" }}>
-                      <button
-                        style={{ ...S.btn, ...S.btnSecondary, padding: "5px 12px", fontSize: 12 }}
-                        onClick={() => {
-                          const p = patients.find(x => x.id === v.patientId);
-                          setSelectedPatient(p);
-                          setActive("patients");
-                        }}
-                      >
-                        View Record →
-                      </button>
-                    </td>
-                  </tr>
                 ))}
-              </tbody>
-            </table>
+              </div>
+            )}
           </div>
-        )}
+        </div>
       </div>
     </div>
   );

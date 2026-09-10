@@ -16,6 +16,17 @@ import Appointments from "./components/Appointments";
 import Templates from "./components/Templates";
 import Billing from "./components/Billing";
 import WhatsAppPage from "./components/WhatsAppPage";
+import {
+  Stethoscope,
+  Activity,
+  Building2,
+  Calendar,
+  Clock,
+  ShieldCheck,
+  CheckCircle2,
+  Loader2,
+  ChevronRight
+} from "lucide-react";
 
 export default function App() {
   const [user, setUser] = useState(null);
@@ -26,6 +37,14 @@ export default function App() {
   const [templates, setTemplates] = useState([]);
   const [selectedPatient, setSelectedPatient] = useState(null);
   const [loading, setLoading] = useState(false);
+  const [currentTime, setCurrentTime] = useState(new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }));
+
+  useEffect(() => {
+    const timer = setInterval(() => {
+      setCurrentTime(new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }));
+    }, 30000);
+    return () => clearInterval(timer);
+  }, []);
 
   useEffect(() => {
     if (!user) return;
@@ -115,23 +134,43 @@ export default function App() {
     return (
       <div style={{
         minHeight: "100vh",
-        background: "#F8FAFC",
+        background: "linear-gradient(135deg, #0B132B 0%, #1C2541 100%)",
         display: "flex",
         flexDirection: "column",
         alignItems: "center",
         justifyContent: "center",
-        gap: 16
+        gap: 20,
+        color: "#FFFFFF",
       }}>
         <div style={{
-          width: 52,
-          height: 52,
-          border: "4px solid #CCFBF1",
-          borderTopColor: "#0D9488",
-          borderRadius: "50%",
-          animation: "spin 0.8s linear infinite"
-        }} />
-        <style>{`@keyframes spin { to { transform: rotate(360deg); } }`}</style>
-        <div style={{ fontSize: 16, fontWeight: 700, color: "#0F172A" }}>Loading Clinical Workspace...</div>
+          width: 64,
+          height: 64,
+          background: "linear-gradient(135deg, #0D9488 0%, #0284C7 100%)",
+          borderRadius: 20,
+          display: "flex",
+          alignItems: "center",
+          justifyContent: "center",
+          boxShadow: "0 0 30px rgba(13, 148, 136, 0.4)",
+          position: "relative",
+        }}>
+          <Stethoscope size={32} color="#FFF" />
+          <div style={{
+            position: "absolute",
+            inset: -4,
+            border: "2px solid #2DD4BF",
+            borderRadius: 24,
+            opacity: 0.6,
+            animation: "pulseSubtle 1.8s infinite",
+          }} />
+        </div>
+        <div style={{ textAlign: "center" }}>
+          <div style={{ fontSize: 18, fontWeight: 800, letterSpacing: "-0.01em", marginBottom: 6 }}>
+            Synchronizing Clinical Database
+          </div>
+          <div style={{ fontSize: 13, color: "#94A3B8" }}>
+            Securing records for #{user.clinicCode}...
+          </div>
+        </div>
       </div>
     );
   }
@@ -153,40 +192,100 @@ export default function App() {
       <Sidebar active={page} setActive={setPage} user={user} onLogout={handleLogout} />
       <div style={S.main}>
         {/* Medical Topbar Header */}
-        <div style={S.topbar}>
+        <header style={S.topbar}>
+          {/* Breadcrumb path */}
           <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
-            <span style={{ color: "#0D9488", fontSize: 14, fontWeight: 700 }}>🩺 Clinical Portal</span>
-            <span style={{ color: "#CBD5E1" }}>/</span>
-            <span style={{ fontWeight: 800, fontSize: 16, color: "#0F172A", textTransform: "capitalize", letterSpacing: "-0.01em" }}>
+            <div style={{
+              display: "flex",
+              alignItems: "center",
+              gap: 6,
+              color: "#0D9488",
+              fontSize: 13.5,
+              fontWeight: 700,
+            }}>
+              <Activity size={16} />
+              <span>Workspace</span>
+            </div>
+            <ChevronRight size={14} color="#CBD5E1" />
+            <span style={{
+              fontWeight: 800,
+              fontSize: 16,
+              color: "#0F172A",
+              textTransform: "capitalize",
+              letterSpacing: "-0.02em",
+            }}>
               {page}
             </span>
           </div>
 
-          <div style={{ display: "flex", alignItems: "center", gap: 16 }}>
+          {/* Right Status Indicators */}
+          <div style={{ display: "flex", alignItems: "center", gap: 14 }}>
+            {/* Clinic Name & Code Chip */}
             <div style={{
               display: "flex",
               alignItems: "center",
               gap: 8,
-              background: "#ECFDF5",
-              border: "1px solid #A7F3D0",
+              background: "#F0FDFA",
+              border: "1px solid #CCFBF1",
               padding: "6px 14px",
               borderRadius: 20,
               fontSize: 13,
               fontWeight: 700,
-              color: "#047857"
+              color: "#0F766E",
             }}>
-              <span style={{ width: 8, height: 8, borderRadius: "50%", background: "#10B981", display: "inline-block", boxShadow: "0 0 6px #10B981" }} />
-              <span>🏥 {user.clinicName || DOCTOR_INFO.clinic}</span>
-              <span style={{ color: "#0D9488" }}>({user.clinicCode})</span>
+              <span style={{
+                width: 8,
+                height: 8,
+                borderRadius: "50%",
+                background: "#10B981",
+                display: "inline-block",
+                boxShadow: "0 0 6px #10B981",
+              }} />
+              <Building2 size={14} color="#0D9488" />
+              <span>{user.clinicName || DOCTOR_INFO.clinic}</span>
+              <span style={{
+                color: "#0D9488",
+                background: "rgba(13, 148, 136, 0.1)",
+                padding: "2px 8px",
+                borderRadius: 12,
+                fontFamily: "monospace",
+                fontSize: 11.5,
+              }}>
+                #{user.clinicCode}
+              </span>
             </div>
 
-            <div style={{ fontSize: 13, color: "#64748B", fontWeight: 600 }}>
-              📅 {fmtDate(today())}
+            {/* Date & Clock Pill */}
+            <div style={{
+              display: "flex",
+              alignItems: "center",
+              gap: 12,
+              background: "#FFFFFF",
+              border: "1px solid #E2E8F0",
+              padding: "6px 14px",
+              borderRadius: 20,
+              fontSize: 12.5,
+              color: "#475569",
+              fontWeight: 600,
+              boxShadow: "0 1px 2px rgba(15, 23, 42, 0.04)",
+            }}>
+              <span style={{ display: "flex", alignItems: "center", gap: 5 }}>
+                <Calendar size={14} color="#64748B" />
+                {fmtDate(today())}
+              </span>
+              <span style={{ color: "#CBD5E1" }}>|</span>
+              <span style={{ display: "flex", alignItems: "center", gap: 5, color: "#0F172A", fontWeight: 700 }}>
+                <Clock size={14} color="#0D9488" />
+                {currentTime}
+              </span>
             </div>
           </div>
-        </div>
+        </header>
 
-        <div style={S.content}>{renderPage()}</div>
+        {/* Content Area */}
+        <main style={S.content}>
+          {renderPage()}
+        </main>
       </div>
     </div>
   );
