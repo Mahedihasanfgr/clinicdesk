@@ -1,4 +1,5 @@
 import { useRef } from "react";
+import { createPortal } from "react-dom";
 import { S } from "../styles/styles";
 import { fmtDate } from "../utils/helpers";
 import { DOCTOR_INFO } from "../constants/doctor";
@@ -106,9 +107,9 @@ export default function PrintPrescription({ patient, visit, onClose }) {
     w.print();
   };
 
-  return (
+  return createPortal(
     <div style={S.modal} onClick={e => e.target === e.currentTarget && onClose()}>
-      <div style={{ ...S.modalBox, maxWidth: 660 }} className="animate-fade">
+      <div style={{ ...S.modalBox, maxWidth: 700, maxHeight: "calc(100vh - 48px)", overflowY: "auto" }}>
         <div style={{
           display: "flex",
           justifyContent: "space-between",
@@ -212,6 +213,7 @@ export default function PrintPrescription({ patient, visit, onClose }) {
           </button>
         </div>
       </div>
-    </div>
+    </div>,
+    document.body
   );
 }

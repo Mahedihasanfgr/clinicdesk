@@ -1,5 +1,6 @@
 import { useState } from "react";
-import { S } from "../styles/styles";
+import { tokens } from "../styles/tokens";
+import { PageHeader, Badge, Button, EmptyState, Input, Modal } from "./common";
 import {
   FileText,
   Plus,
@@ -8,22 +9,25 @@ import {
   X,
   Sparkles,
   Save,
-  AlertCircle
+  AlertCircle,
+  Search,
 } from "lucide-react";
 
 export default function Templates({ templates, addTemplate, deleteTemplate }) {
   const [showForm, setShowForm] = useState(false);
+  const [search, setSearch] = useState("");
   const blankRx = () => ({ medicine: "", dosage: "", duration: "", instructions: "" });
   const [form, setForm] = useState({ name: "", prescription: [blankRx()] });
   const [err, setErr] = useState("");
 
-  const addRx = () => setForm(f => ({ ...f, prescription: [...f.prescription, blankRx()] }));
-  const rmRx = i => setForm(f => ({ ...f, prescription: f.prescription.filter((_, j) => j !== i) }));
-  const setRx = (i, k) => e => setForm(f => {
-    const p = [...f.prescription];
-    p[i] = { ...p[i], [k]: e.target.value };
-    return { ...f, prescription: p };
-  });
+  const addRx = () => setForm((f) => ({ ...f, prescription: [...f.prescription, blankRx()] }));
+  const rmRx = (i) => setForm((f) => ({ ...f, prescription: f.prescription.filter((_, j) => j !== i) }));
+  const setRx = (i, k) => (e) =>
+    setForm((f) => {
+      const p = [...f.prescription];
+      p[i] = { ...p[i], [k]: e.target.value };
+      return { ...f, prescription: p };
+    });
 
   const save = async (e) => {
     if (e) e.preventDefault();
@@ -37,123 +41,155 @@ export default function Templates({ templates, addTemplate, deleteTemplate }) {
     setErr("");
   };
 
+  const filtered = templates.filter((t) =>
+    (t.name || "").toLowerCase().includes(search.toLowerCase())
+  );
+
   return (
     <div className="animate-fade" style={{ display: "flex", flexDirection: "column", gap: 24 }}>
       {/* Create Template Modal */}
       {showForm && (
-        <div style={S.modal} onClick={e => e.target === e.currentTarget && setShowForm(false)}>
-          <div style={{ ...S.modalBox, maxWidth: 720 }} className="animate-fade">
-            <div style={{
-              display: "flex",
-              alignItems: "center",
-              justifyContent: "space-between",
-              paddingBottom: 16,
-              borderBottom: "1px solid #E2E8F0",
-              marginBottom: 20,
-            }}>
-              <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
-                <div style={{
-                  width: 38,
-                  height: 38,
-                  borderRadius: 10,
-                  background: "linear-gradient(135deg, #0D9488 0%, #0284C7 100%)",
-                  display: "flex",
-                  alignItems: "center",
-                  justifyContent: "center",
-                  color: "#FFF",
-                }}>
-                  <Sparkles size={20} />
-                </div>
-                <h2 style={{ fontSize: 18, fontWeight: 800, color: "#0F172A", letterSpacing: "-0.02em" }}>
-                  Create Clinical Rx Template
-                </h2>
-              </div>
-
-              <button
-                onClick={() => setShowForm(false)}
-                style={{
-                  background: "#F1F5F9",
-                  border: "none",
-                  borderRadius: "50%",
-                  width: 30,
-                  height: 30,
-                  display: "flex",
-                  alignItems: "center",
-                  justifyContent: "center",
-                  color: "#64748B",
-                  cursor: "pointer",
-                }}
-                className="btn-interactive"
-              >
-                <X size={16} />
-              </button>
-            </div>
+        <Modal
+          isOpen={true}
+          onClose={() => setShowForm(false)}
+          title="Create Clinical Rx Protocol"
+          subtitle="Configure frequent drug combinations for rapid 1-click prescription entry"
+          icon={Sparkles}
+          maxWidth={760}
+        >
 
             {err && (
-              <div style={{
-                background: "#FEF2F2",
-                border: "1px solid #FECACA",
-                color: "#B91C1C",
-                padding: "10px 14px",
-                borderRadius: 10,
-                fontSize: 13,
-                marginBottom: 16,
-                display: "flex",
-                alignItems: "center",
-                gap: 8,
-              }}>
+              <div
+                style={{
+                  background: tokens.colors.semantic.danger.bg,
+                  border: `1px solid ${tokens.colors.semantic.danger.border}`,
+                  color: tokens.colors.semantic.danger.text,
+                  padding: "10px 14px",
+                  borderRadius: tokens.radii.md,
+                  fontSize: 13,
+                  marginBottom: 16,
+                  display: "flex",
+                  alignItems: "center",
+                  gap: 8,
+                }}
+              >
                 <AlertCircle size={16} />
                 <span>{err}</span>
               </div>
             )}
 
-            <form onSubmit={save}>
-              <div style={{ marginBottom: 18 }}>
-                <label style={S.label}>Template Clinical Title *</label>
-                <input
-                  style={{ ...S.input, fontWeight: 600 }}
-                  value={form.name}
-                  onChange={e => {
-                    setErr("");
-                    setForm(f => ({ ...f, name: e.target.value }));
-                  }}
-                  placeholder="e.g. Acute Viral URI Protocol, Type 2 DM Maintenance, Hypertension"
-                  required
-                  autoFocus
-                />
-              </div>
+            <form onSubmit={save} style={{ display: "flex", flexDirection: "column", gap: 18 }}>
+              <Input
+                label="Template Clinical Title *"
+                value={form.name}
+                onChange={(e) => {
+                  setErr("");
+                  setForm((f) => ({ ...f, name: e.target.value }));
+                }}
+                placeholder="e.g. Acute Viral URI Protocol, Type 2 DM Maintenance, Hypertension"
+                required
+                autoFocus
+              />
 
-              <div style={{
-                background: "#F8FAFC",
-                borderRadius: 14,
-                border: "1px solid #E2E8F0",
-                padding: "16px 18px",
-                marginBottom: 20,
-              }}>
-                <div style={{
-                  fontSize: 12,
-                  fontWeight: 700,
-                  color: "#0F766E",
-                  textTransform: "uppercase",
-                  letterSpacing: "0.06em",
-                  marginBottom: 10,
-                  display: "flex",
-                  alignItems: "center",
-                  gap: 6,
-                }}>
+              <div
+                style={{
+                  background: tokens.colors.slate[50],
+                  borderRadius: tokens.radii.lg,
+                  border: `1px solid ${tokens.colors.slate[200]}`,
+                  padding: "16px 18px",
+                }}
+              >
+                <div
+                  style={{
+                    fontSize: 12,
+                    fontWeight: 700,
+                    color: tokens.colors.primary[700],
+                    textTransform: "uppercase",
+                    letterSpacing: "0.06em",
+                    marginBottom: 12,
+                    display: "flex",
+                    alignItems: "center",
+                    gap: 6,
+                  }}
+                >
                   <Pill size={15} /> Included Medicines
                 </div>
 
                 <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
                   {form.prescription.map((rx, i) => (
-                    <div key={i} style={{ display: "grid", gridTemplateColumns: "2fr 1fr 1fr 2fr 36px", gap: 8, alignItems: "center" }}>
-                      <input style={{ ...S.input, padding: "8px 10px", fontSize: 13 }} value={rx.medicine} onChange={setRx(i, "medicine")} placeholder="Medicine name" required />
-                      <input style={{ ...S.input, padding: "8px 10px", fontSize: 13 }} value={rx.dosage} onChange={setRx(i, "dosage")} placeholder="Dosage" />
-                      <input style={{ ...S.input, padding: "8px 10px", fontSize: 13 }} value={rx.duration} onChange={setRx(i, "duration")} placeholder="Duration" />
-                      <input style={{ ...S.input, padding: "8px 10px", fontSize: 13 }} value={rx.instructions} onChange={setRx(i, "instructions")} placeholder="Instructions" />
+                    <div
+                      key={i}
+                      style={{
+                        display: "grid",
+                        gridTemplateColumns: "2fr 1fr 1fr 2fr 36px",
+                        gap: 8,
+                        alignItems: "center",
+                      }}
+                    >
+                      <input
+                        style={{
+                          padding: "8px 10px",
+                          fontSize: 13,
+                          borderRadius: tokens.radii.sm,
+                          border: `1px solid ${tokens.colors.slate[300]}`,
+                          outline: "none",
+                        }}
+                        value={rx.medicine}
+                        onChange={setRx(i, "medicine")}
+                        placeholder="Medicine name"
+                        required
+                      />
+                      <input
+                        style={{
+                          padding: "8px 10px",
+                          fontSize: 13,
+                          borderRadius: tokens.radii.sm,
+                          border: `1px solid ${tokens.colors.slate[300]}`,
+                          outline: "none",
+                        }}
+                        value={rx.dosage}
+                        onChange={setRx(i, "dosage")}
+                        placeholder="Dosage"
+                      />
+                      <input
+                        style={{
+                          padding: "8px 10px",
+                          fontSize: 13,
+                          borderRadius: tokens.radii.sm,
+                          border: `1px solid ${tokens.colors.slate[300]}`,
+                          outline: "none",
+                        }}
+                        value={rx.duration}
+                        onChange={setRx(i, "duration")}
+                        placeholder="Duration"
+                      />
+                      <input
+                        style={{
+                          padding: "8px 10px",
+                          fontSize: 13,
+                          borderRadius: tokens.radii.sm,
+                          border: `1px solid ${tokens.colors.slate[300]}`,
+                          outline: "none",
+                        }}
+                        value={rx.instructions}
+                        onChange={setRx(i, "instructions")}
+                        placeholder="Instructions"
+                      />
                       <button
                         type="button"
-                        style={{ ...S.btn, ...S.btnDanger, padding: "8px", width: 36, height: 36, borderRadius: 8 }}
+                        style={{
+                          background: tokens.colors.semantic.danger.bg,
+                          color: tokens.colors.semantic.danger.text,
+                          border: `1px solid ${tokens.colors.semantic.danger.border}`,
+                          padding: "8px",
+                          width: 36,
+                          height: 36,
+                          borderRadius: tokens.radii.sm,
+                          cursor: "pointer",
+                          display: "flex",
+                          alignItems: "center",
+                          justifyContent: "center",
+                        }}
                         onClick={() => rmRx(i)}
                         disabled={form.prescription.length === 1}
                         className="btn-interactive"
@@ -166,169 +202,216 @@ export default function Templates({ templates, addTemplate, deleteTemplate }) {
 
                 <button
                   type="button"
-                  style={{ ...S.btn, ...S.btnSecondary, fontSize: 12.5, padding: "6px 12px", marginTop: 10, color: "#0D9488", fontWeight: 700 }}
+                  style={{
+                    padding: "7px 14px",
+                    fontSize: 12.5,
+                    borderRadius: tokens.radii.sm,
+                    background: "#FFFFFF",
+                    color: tokens.colors.primary[600],
+                    border: `1px solid ${tokens.colors.primary[200]}`,
+                    cursor: "pointer",
+                    fontWeight: 700,
+                    marginTop: 12,
+                    display: "inline-flex",
+                    alignItems: "center",
+                    gap: 6,
+                  }}
                   onClick={addRx}
                   className="btn-interactive"
                 >
-                  <Plus size={14} /> Add Medicine
+                  <Plus size={14} /> Add Another Drug
                 </button>
               </div>
 
               <div style={{ display: "flex", gap: 10, justifyContent: "flex-end" }}>
-                <button type="button" style={{ ...S.btn, ...S.btnSecondary, padding: "9px 16px" }} onClick={() => setShowForm(false)}>
+                <Button type="button" variant="secondary" onClick={() => setShowForm(false)}>
                   Cancel
-                </button>
-                <button type="submit" style={{ ...S.btn, ...S.btnPrimary, padding: "9px 20px" }} className="btn-interactive">
-                  <Save size={15} />
-                  <span>Save Clinical Template</span>
-                </button>
+                </Button>
+                <Button type="submit" variant="primary" icon={Save}>
+                  Save Clinical Protocol
+                </Button>
               </div>
             </form>
-          </div>
-        </div>
+        </Modal>
       )}
 
-      {/* Header Banner */}
-      <div style={{
-        ...S.card,
-        display: "flex",
-        alignItems: "center",
-        justifyContent: "space-between",
-        flexWrap: "wrap",
-        gap: 16,
-        marginBottom: 0,
-      }}>
-        <div style={{ display: "flex", alignItems: "center", gap: 14 }}>
-          <div style={{
-            width: 46,
-            height: 46,
-            borderRadius: 14,
-            background: "linear-gradient(135deg, #0D9488 0%, #0284C7 100%)",
-            display: "flex",
-            alignItems: "center",
-            justifyContent: "center",
-            color: "#FFF",
-            boxShadow: "0 4px 14px rgba(13, 148, 136, 0.3)",
-          }}>
-            <FileText size={22} strokeWidth={2.2} />
-          </div>
-          <div>
-            <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
-              <h1 style={{ fontSize: 20, fontWeight: 800, color: "#0F172A", letterSpacing: "-0.02em" }}>
-                Prescription Protocols & Templates
-              </h1>
-              <span style={S.badge("teal")}>
-                {templates.length} Saved Protocols
-              </span>
-            </div>
-            <p style={{ fontSize: 13, color: "#64748B", marginTop: 2 }}>
-              Pre-configure frequent drug combinations for rapid 1-click consultation orders
-            </p>
-          </div>
-        </div>
+      {/* Page Header */}
+      <PageHeader
+        icon={FileText}
+        title="Prescription Protocols & Templates"
+        count={templates.length}
+        countLabel="Protocols"
+        description="Pre-configure frequent drug combinations for rapid 1-click consultation orders"
+        actions={
+          <Button variant="primary" icon={Plus} onClick={() => setShowForm(true)}>
+            New Rx Protocol
+          </Button>
+        }
+      />
 
-        <button
+      {/* Search Toolbar */}
+      <div style={{ maxWidth: 440, position: "relative" }}>
+        <Search
+          size={16}
           style={{
-            ...S.btn,
-            ...S.btnPrimary,
-            padding: "10px 18px",
-            fontSize: 13.5,
-            borderRadius: 12,
+            position: "absolute",
+            left: 14,
+            top: "50%",
+            transform: "translateY(-50%)",
+            color: tokens.colors.slate[400],
           }}
-          className="btn-interactive"
-          onClick={() => setShowForm(true)}
-        >
-          <Plus size={16} />
-          <span>New Prescription Protocol</span>
-        </button>
+        />
+        <input
+          style={{
+            width: "100%",
+            padding: "10px 14px",
+            paddingLeft: 40,
+            borderRadius: tokens.radii.md,
+            border: `1px solid ${tokens.colors.slate[300]}`,
+            background: "#FFFFFF",
+            fontSize: 14,
+            color: tokens.colors.slate[900],
+            outline: "none",
+            boxSizing: "border-box",
+          }}
+          value={search}
+          onChange={(e) => setSearch(e.target.value)}
+          placeholder="Filter protocols by clinical diagnosis or name..."
+        />
       </div>
 
       {/* Templates Grid */}
-      {templates.length === 0 ? (
-        <div style={{
-          ...S.card,
-          textAlign: "center",
-          padding: "54px 20px",
-          color: "#64748B",
-          border: "1px dashed #CBD5E1",
-        }}>
-          <Sparkles size={40} color="#94A3B8" style={{ marginBottom: 12 }} />
-          <div style={{ fontSize: 15, fontWeight: 700, color: "#334155" }}>
-            No Saved Prescription Protocols
-          </div>
-          <p style={{ fontSize: 13, color: "#94A3B8", marginTop: 4, marginBottom: 18 }}>
-            Save regular clinical treatments (e.g. URI, HTN, Diabetes) to speed up OPD consultation workflow.
-          </p>
-          <button
-            style={{ ...S.btn, ...S.btnPrimary, fontSize: 13, padding: "9px 18px" }}
-            className="btn-interactive"
-            onClick={() => setShowForm(true)}
-          >
-            <Plus size={15} />
-            <span>Create First Template</span>
-          </button>
+      {filtered.length === 0 ? (
+        <div
+          style={{
+            background: "#FFFFFF",
+            borderRadius: tokens.radii.xl,
+            border: `1px solid ${tokens.colors.slate[200]}`,
+            boxShadow: tokens.shadows.sm,
+          }}
+        >
+          <EmptyState
+            icon={FileText}
+            color="teal"
+            title={templates.length === 0 ? "No prescription protocols created yet" : "No matching protocols found"}
+            description={
+              templates.length === 0
+                ? "Save time during patient visits by creating pre-filled drug regimens for standard conditions."
+                : `No protocols match "${search}". Try searching by another keyword.`
+            }
+            actionLabel={templates.length === 0 ? "Create First Protocol" : "Clear Filter"}
+            actionIcon={Plus}
+            onAction={() => {
+              if (templates.length === 0) setShowForm(true);
+              else setSearch("");
+            }}
+          />
         </div>
       ) : (
-        <div style={S.grid2}>
-          {templates.map(t => {
-            const list = t.prescription || t.template_medicines || [];
-            return (
-              <div key={t.id} style={{ ...S.card, marginBottom: 0 }} className="card-hover">
-                <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 14 }}>
-                  <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
-                    <Pill size={18} color="#0D9488" />
-                    <span style={{ fontWeight: 800, fontSize: 16, color: "#0F172A" }}>{t.name}</span>
-                  </div>
-                  <span style={S.badge("slate")}>
-                    {list.length} Drugs
-                  </span>
-                </div>
-
-                <div style={{ display: "flex", flexDirection: "column", gap: 8, marginBottom: 16 }}>
-                  {list.map((rx, i) => (
+        <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(340px, 1fr))", gap: 20 }}>
+          {filtered.map((t) => (
+            <div
+              key={t.id}
+              className="card-hover"
+              style={{
+                background: "#FFFFFF",
+                borderRadius: tokens.radii.xl,
+                border: `1px solid ${tokens.colors.slate[200]}`,
+                padding: "22px 24px",
+                boxShadow: tokens.shadows.sm,
+                display: "flex",
+                flexDirection: "column",
+                justifyContent: "space-between",
+                gap: 16,
+              }}
+            >
+              <div>
+                <div style={{ display: "flex", alignItems: "flex-start", justifyContent: "space-between", gap: 10, marginBottom: 12 }}>
+                  <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
                     <div
-                      key={i}
                       style={{
-                        padding: "8px 12px",
-                        background: "#F8FAFC",
-                        borderRadius: 10,
-                        border: "1px solid #E2E8F0",
-                        fontSize: 13,
+                        width: 36,
+                        height: 36,
+                        borderRadius: tokens.radii.md,
+                        background: tokens.colors.primary[50],
+                        color: tokens.colors.primary[600],
+                        display: "flex",
+                        alignItems: "center",
+                        justifyContent: "center",
+                        flexShrink: 0,
                       }}
                     >
-                      <div style={{ fontWeight: 700, color: "#0F172A" }}>
-                        {rx.medicine}
-                      </div>
-                      <div style={{ fontSize: 12, color: "#64748B", marginTop: 2 }}>
-                        {rx.dosage && `${rx.dosage} • `}{rx.duration && `${rx.duration} • `}{rx.instructions}
-                      </div>
+                      <Pill size={18} />
                     </div>
-                  ))}
-                </div>
+                    <div>
+                      <h3 style={{ fontSize: 15.5, fontWeight: 700, color: tokens.colors.slate[900], margin: 0 }}>
+                        {t.name}
+                      </h3>
+                      <span style={{ fontSize: 12, color: tokens.colors.slate[500] }}>
+                        {(t.prescription || []).length} Medicines Included
+                      </span>
+                    </div>
+                  </div>
 
-                <div style={{ display: "flex", justifyContent: "flex-end", paddingTop: 10, borderTop: "1px solid #F1F5F9" }}>
                   <button
-                    style={{
-                      ...S.btn,
-                      ...S.btnDanger,
-                      padding: "6px 12px",
-                      fontSize: 12,
-                      borderRadius: 8,
-                    }}
-                    className="btn-interactive"
                     onClick={() => {
                       if (window.confirm(`Delete protocol "${t.name}"?`)) {
                         deleteTemplate(t.id);
                       }
                     }}
+                    style={{
+                      background: "transparent",
+                      border: "none",
+                      color: tokens.colors.slate[400],
+                      cursor: "pointer",
+                      padding: 4,
+                      borderRadius: 6,
+                    }}
+                    className="btn-interactive"
+                    title="Delete Protocol"
                   >
-                    <Trash2 size={13} />
-                    <span>Delete</span>
+                    <Trash2 size={16} />
                   </button>
                 </div>
+
+                <div
+                  style={{
+                    background: tokens.colors.slate[50],
+                    borderRadius: tokens.radii.md,
+                    padding: "12px 14px",
+                    border: `1px solid ${tokens.colors.slate[200]}`,
+                    display: "flex",
+                    flexDirection: "column",
+                    gap: 6,
+                  }}
+                >
+                  {(t.prescription || []).map((rx, idx) => (
+                    <div
+                      key={idx}
+                      style={{
+                        fontSize: 12.5,
+                        display: "flex",
+                        alignItems: "center",
+                        justifyContent: "space-between",
+                        color: tokens.colors.slate[700],
+                      }}
+                    >
+                      <span style={{ fontWeight: 600 }}>• {rx.medicine || "Drug"}</span>
+                      <span style={{ color: tokens.colors.slate[500], fontSize: 12 }}>
+                        {rx.dosage} {rx.duration && `(${rx.duration})`}
+                      </span>
+                    </div>
+                  ))}
+                </div>
               </div>
-            );
-          })}
+
+              <div style={{ display: "flex", justifyContent: "flex-end" }}>
+                <Badge variant="teal" size="sm">
+                  Ready for Consultations
+                </Badge>
+              </div>
+            </div>
+          ))}
         </div>
       )}
     </div>

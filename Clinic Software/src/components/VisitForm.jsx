@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { createPortal } from "react-dom";
 import { S } from "../styles/styles";
 import { today, fmtDate } from "../utils/helpers";
 import { printPrescription } from "../utils/printPrescription";
@@ -91,9 +92,9 @@ export default function VisitForm({ patient, lastVisit, templates, onSave, onClo
 
   const sortedVisits = [...(patient.visits || [])].sort((a, b) => new Date(b.date) - new Date(a.date));
 
-  return (
+  return createPortal(
     <div style={S.modal} onClick={e => e.target === e.currentTarget && onClose()}>
-      <div style={{ ...S.modalBox, maxWidth: 880 }} className="animate-fade">
+      <div style={{ ...S.modalBox, maxWidth: 880, maxHeight: "calc(100vh - 48px)", overflowY: "auto" }}>
         {/* Header */}
         <div style={{
           display: "flex",
@@ -562,6 +563,7 @@ export default function VisitForm({ patient, lastVisit, templates, onSave, onClo
           </button>
         </div>
       </div>
-    </div>
+    </div>,
+    document.body
   );
 }
