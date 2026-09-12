@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { tokens } from "../styles/tokens";
 import { today, fmtDate } from "../utils/helpers";
 import PatientDetail from "./PatientDetail";
@@ -16,6 +16,8 @@ import {
   AlertCircle,
   Calendar,
   Users,
+  MessageSquare,
+  RefreshCw,
 } from "lucide-react";
 
 const BLANK_FORM = { patientId: "", date: today(), time: "", reason: "" };
@@ -31,6 +33,7 @@ export default function Appointments({
   addVisit,
   templates,
   user,
+  onRefresh,
 }) {
   const [showForm, setShowForm] = useState(false);
   const [mode, setMode] = useState("existing");
@@ -38,10 +41,25 @@ export default function Appointments({
   const [newPt, setNewPt] = useState(BLANK_NEW_PT);
   const [viewDate, setViewDate] = useState(today());
   const [saving, setSaving] = useState(false);
+  const [refreshing, setRefreshing] = useState(false);
   const [showCompleted, setShowCompleted] = useState(false);
   const [visitPatient, setVisitPatient] = useState(null);
   const [viewPatient, setViewPatient] = useState(null);
   const [err, setErr] = useState("");
+
+  const handleRefresh = async () => {
+    if (!onRefresh) return;
+    setRefreshing(true);
+    try {
+      await onRefresh();
+    } finally {
+      setRefreshing(false);
+    }
+  };
+
+  useEffect(() => {
+    if (onRefresh) onRefresh();
+  }, [onRefresh]);
 
   const set = (k) => (e) => {
     setErr("");
@@ -52,7 +70,14 @@ export default function Appointments({
     setNewPt((f) => ({ ...f, [k]: e.target.value }));
   };
 
-  const allDayApts = appointments.filter((a) => (a.date || "").toString().slice(0, 10) === viewDate);
+  const normalizeDate = (d) => {
+    if (!d) return "";
+    const s = String(d);
+    if (s.includes("T")) return s.split("T")[0];
+    return s.slice(0, 10);
+  };
+
+  const allDayApts = appointments.filter((a) => normalizeDate(a.date) === viewDate);
   const completedCount = allDayApts.filter((a) => a.status === "completed" || a.status === "cancelled").length;
   const dayApts = allDayApts
     .filter((a) => (showCompleted ? true : a.status !== "completed" && a.status !== "cancelled"))
@@ -299,9 +324,20 @@ export default function Appointments({
         countLabel="Slots"
         description="Daily patient queue, consultation slots, and clinic visit attendance"
         actions={
-          <Button variant="primary" icon={CalendarPlus} onClick={() => setShowForm(true)}>
-            Book Appointment
-          </Button>
+          <div style={{ display: "flex", gap: 10, alignItems: "center" }}>
+            <Button
+              variant="secondary"
+              icon={RefreshCw}
+              loading={refreshing}
+              onClick={handleRefresh}
+              title="Refresh schedule"
+            >
+              Refresh
+            </Button>
+            <Button variant="primary" icon={CalendarPlus} onClick={() => setShowForm(true)}>
+              Book Appointment
+            </Button>
+          </div>
         }
       />
 
@@ -389,7 +425,9 @@ export default function Appointments({
               color="blue"
               title={`No appointments scheduled for ${fmtDate(viewDate)}`}
               description={
-                showCompleted
+                allDayApts.length === 0
+                  ? "No scheduled appointments found for this date. Bookings through WhatsApp or reception will appear here."
+                  : showCompleted
                   ? "No scheduled visits match this date filter."
                   : "All appointments for this date have been completed or cancelled."
               }
@@ -459,6 +497,25 @@ export default function Appointments({
                       >
                         {a.status}
                       </Badge>
+                      {a.source === "whatsapp" && (
+                        <span
+                          style={{
+                            display: "inline-flex",
+                            alignItems: "center",
+                            gap: 4,
+                            background: "rgba(37, 211, 102, 0.12)",
+                            color: "#16A34A",
+                            border: "1px solid rgba(37, 211, 102, 0.3)",
+                            fontSize: 11,
+                            fontWeight: 700,
+                            padding: "2px 8px",
+                            borderRadius: tokens.radii.full,
+                          }}
+                        >
+                          <MessageSquare size={11} />
+                          WhatsApp
+                        </span>
+                      )}
                     </div>
 
                     <div

@@ -28,7 +28,14 @@ import {
 } from "lucide-react";
 
 export default function App() {
-  const [user, setUser] = useState(null);
+  const [user, setUser] = useState(() => {
+    try {
+      const saved = localStorage.getItem("user");
+      return saved ? JSON.parse(saved) : null;
+    } catch {
+      return null;
+    }
+  });
   const [showRegister, setShowRegister] = useState(false);
   const [page, setPage] = useState("dashboard");
   const [patients, setPatients] = useState([]);
@@ -40,6 +47,16 @@ export default function App() {
   const [currentTime, setCurrentTime] = useState(
     new Date().toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" })
   );
+
+  const refreshAppointments = async () => {
+    try {
+      const a = await apiGetAppointments();
+      if (Array.isArray(a)) setAppointments(a);
+      return a;
+    } catch (err) {
+      console.error("Failed to refresh appointments:", err);
+    }
+  };
 
   useEffect(() => {
     const timer = setInterval(() => {
@@ -61,8 +78,22 @@ export default function App() {
       .finally(() => setLoading(false));
   }, [user]);
 
+  // Real-time background sync for appointments (WhatsApp bot & multi-user sync)
+  useEffect(() => {
+    if (!user) return;
+    const pollTimer = setInterval(() => {
+      apiGetAppointments()
+        .then((a) => {
+          if (Array.isArray(a)) setAppointments(a);
+        })
+        .catch(() => {});
+    }, 6000);
+    return () => clearInterval(pollTimer);
+  }, [user]);
+
   const handleLogout = () => {
     localStorage.removeItem("token");
+    localStorage.removeItem("user");
     setUser(null);
     setPatients([]); setAppointments([]); setTemplates([]);
   };
@@ -191,7 +222,7 @@ export default function App() {
       case "patients":
         return <Patients patients={patients} addPatient={addPatient} updatePatient={updatePatient} addVisit={addVisit} templates={templates} user={user} initialSelected={selectedPatient} clearSelected={() => setSelectedPatient(null)} />;
       case "appointments":
-        return <Appointments appointments={appointments} addAppointment={addAppointment} updateAppointment={updateAppointment} deleteAppointment={deleteAppointment} patients={patients} addPatient={addPatient} addVisit={addVisit} templates={templates} user={user} />;
+        return <Appointments appointments={appointments} addAppointment={addAppointment} updateAppointment={updateAppointment} deleteAppointment={deleteAppointment} patients={patients} addPatient={addPatient} addVisit={addVisit} templates={templates} user={user} onRefresh={refreshAppointments} />;
       case "templates":
         return <Templates templates={templates} addTemplate={addTemplate} deleteTemplate={deleteTemplate} />;
       case "billing":

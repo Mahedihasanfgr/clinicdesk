@@ -1,7 +1,8 @@
 import express from "express";
 import auth from "../middleware.js";
-import { sendWhatsAppPDF, getConnectionStatus, getQRCode } from "../whatsapp/client.js";
+import { sendWhatsAppPDF, getConnectionStatus, getQRCode, getConnectedPhone } from "../whatsapp/client.js";
 import { generatePrescriptionPDF } from "../whatsapp/pdfGenerator.js";
+import { setActiveClinicId, getActiveClinic, handleIncomingWhatsAppMessage } from "../whatsapp/chatbot.js";
 
 const router = express.Router();
 
@@ -15,7 +16,20 @@ const DOCTOR_INFO = {
 };
 
 router.get("/status", (req, res) => {
-  res.json({ connected: getConnectionStatus(), qr: getQRCode() });
+  const phone = getConnectedPhone();
+  const formattedPhone = phone
+    ? phone.startsWith("91") && phone.length === 12
+      ? `+91 ${phone.slice(2, 7)} ${phone.slice(7)}`
+      : `+${phone}`
+    : null;
+
+  res.json({
+    connected: getConnectionStatus(),
+    qr: getQRCode(),
+    phone,
+    formattedPhone,
+    directChatLink: phone ? `https://wa.me/${phone}?text=Hi` : null,
+  });
 });
 
 // Direct browser test or <img> loader: http://localhost:5000/api/whatsapp/qr
@@ -119,6 +133,67 @@ router.post("/send", auth, async (req, res) => {
     res.json({ success: true });
   } catch (err) {
     console.error("❌ Send error:", err.message);
+    res.status(500).json({ error: err.message });
+  }
+});
+
+// Link active clinic to WhatsApp Chatbot
+router.post("/set-clinic", auth, (req, res) => {
+  if (req.clinicId) {
+    setActiveClinicId(req.clinicId);
+    return res.json({ success: true, clinicId: req.clinicId });
+  }
+  res.status(400).json({ error: "Clinic ID missing" });
+});
+
+// Chatbot status & metrics
+router.get("/bot-status", auth, async (req, res) => {
+  try {
+    const activeClinic = await getActiveClinic();
+    let waAppointmentCount = 0;
+    if (req.clinicId && req.pool) {
+      const cntRes = await req.pool.query(
+        "SELECT COUNT(*)::int AS count FROM appointments WHERE clinic_id = $1 AND source = 'whatsapp'",
+        [req.clinicId]
+      );
+      waAppointmentCount = cntRes.rows[0]?.count || 0;
+    }
+
+    res.json({
+      botActive: true,
+      connected: getConnectionStatus(),
+      activeClinicId: activeClinic?.id || null,
+      activeClinicName: activeClinic?.clinic_name || null,
+      totalWhatsAppAppointments: waAppointmentCount,
+    });
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
+// Simulate / test chatbot message from dashboard
+router.post("/test-bot", auth, async (req, res) => {
+  const { text, phone } = req.body;
+  if (!text) return res.status(400).json({ error: "Message text is required" });
+
+  const testPhone = phone || "919876543210";
+  const replies = [];
+
+  try {
+    await handleIncomingWhatsAppMessage(
+      testPhone,
+      text,
+      "Test Patient",
+      async (replyText) => {
+        replies.push({ type: "text", content: replyText });
+      },
+      async (toPhone, docBuffer, fileName, caption) => {
+        replies.push({ type: "document", fileName, caption, size: docBuffer.length });
+      }
+    );
+
+    res.json({ success: true, replies });
+  } catch (err) {
     res.status(500).json({ error: err.message });
   }
 });

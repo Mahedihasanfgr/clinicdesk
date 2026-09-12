@@ -5,6 +5,7 @@ import qrcodeTerminal from "qrcode-terminal";
 import path from "path";
 import { fileURLToPath } from "url";
 import fs from "fs";
+import { handleIncomingWhatsAppMessage } from "./chatbot.js";
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const SESSION_PATH = path.join(__dirname, "session");
@@ -15,6 +16,12 @@ let currentQR = null;
 
 export const getConnectionStatus = () => isConnected;
 export const getQRCode = () => currentQR;
+export const getConnectedPhone = () => {
+  if (!sock?.user?.id) return null;
+  const raw = sock.user.id.split(":")[0].split("@")[0];
+  return raw.replace(/\D/g, "");
+};
+export const getConnectedUser = () => sock?.user || null;
 
 function clearSession() {
   if (fs.existsSync(SESSION_PATH)) {
@@ -70,11 +77,73 @@ export async function connectWhatsApp() {
     if (connection === "open") {
       isConnected = true;
       currentQR = null;
-      console.log("✅ WhatsApp connected!");
+      console.log("✅ WhatsApp connected & Chatbot Active!");
+    }
+  });
+
+  // ── Chatbot: Handle Incoming WhatsApp Messages ───────────────────────────
+  sock.ev.on("messages.upsert", async ({ messages, type }) => {
+    try {
+      for (const msg of messages || []) {
+        // Skip messages sent by the bot/clinic itself
+        if (msg.key?.fromMe) continue;
+
+        const remoteJid = msg.key?.remoteJid || "";
+        // Skip status broadcast and WhatsApp groups
+        if (!remoteJid || remoteJid === "status@broadcast" || remoteJid.endsWith("@g.us")) continue;
+
+        // Extract message content
+        const text =
+          msg.message?.conversation ||
+          msg.message?.extendedTextMessage?.text ||
+          msg.message?.imageMessage?.caption ||
+          "";
+
+        if (!text.trim()) continue;
+
+        const senderNumber = remoteJid.split("@")[0];
+        const pushName = msg.pushName || "";
+
+        // Dispatch to intelligent chatbot state machine
+        await handleIncomingWhatsAppMessage(
+          senderNumber,
+          text,
+          pushName,
+          async (replyText) => {
+            if (sock && isConnected) {
+              await sock.sendMessage(remoteJid, { text: replyText });
+            }
+          },
+          async (toPhone, docBuffer, fileName, caption) => {
+            if (sock && isConnected) {
+              await sock.sendMessage(remoteJid, {
+                document: docBuffer,
+                mimetype: "application/pdf",
+                fileName: fileName || "Medical_Document.pdf",
+                caption: caption || "Prescription Document",
+              });
+            }
+          }
+        );
+      }
+    } catch (err) {
+      console.error("❌ Error processing incoming WhatsApp message:", err.message);
     }
   });
 
   return sock;
+}
+
+export async function sendWhatsAppText(phoneNumber, messageText) {
+  if (!sock || !isConnected) throw new Error("WhatsApp not connected");
+
+  let number = phoneNumber.replace(/\D/g, "");
+  if (number.startsWith("0")) number = number.slice(1);
+  if (!number.startsWith("91")) number = "91" + number;
+  const jid = `${number}@s.whatsapp.net`;
+
+  await sock.sendMessage(jid, { text: messageText });
+  console.log(`✅ Text message sent to ${jid}`);
 }
 
 export async function sendWhatsAppPDF(phoneNumber, pdfBuffer, patientName) {

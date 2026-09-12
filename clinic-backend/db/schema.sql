@@ -96,6 +96,7 @@ CREATE TABLE IF NOT EXISTS appointments (
   time VARCHAR(10),
   reason TEXT,
   status VARCHAR(20) DEFAULT 'confirmed' CHECK (status IN ('confirmed','waiting','completed','cancelled')),
+  source VARCHAR(20) DEFAULT 'desk',
   created_at TIMESTAMP DEFAULT NOW()
 );
 
@@ -122,6 +123,7 @@ ALTER TABLE users ADD COLUMN IF NOT EXISTS clinic_id INTEGER REFERENCES clinics(
 ALTER TABLE patients ADD COLUMN IF NOT EXISTS clinic_id INTEGER REFERENCES clinics(id) ON DELETE CASCADE;
 ALTER TABLE visits ADD COLUMN IF NOT EXISTS clinic_id INTEGER REFERENCES clinics(id) ON DELETE CASCADE;
 ALTER TABLE appointments ADD COLUMN IF NOT EXISTS clinic_id INTEGER REFERENCES clinics(id) ON DELETE CASCADE;
+ALTER TABLE appointments ADD COLUMN IF NOT EXISTS source VARCHAR(20) DEFAULT 'desk';
 ALTER TABLE templates ADD COLUMN IF NOT EXISTS clinic_id INTEGER REFERENCES clinics(id) ON DELETE CASCADE;
 
 -- Drop legacy unique username constraint across table, replace with (clinic_id, username)

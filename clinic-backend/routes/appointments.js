@@ -18,14 +18,14 @@ router.get("/", auth, async (req, res) => {
 });
 
 router.post("/", auth, async (req, res) => {
-  const { patientId, patientName, date, time, reason, status } = req.body;
+  const { patientId, patientName, date, time, reason, status, source } = req.body;
   try {
     const seqResult = await req.pool.query("SELECT nextval('appointment_id_seq') AS val");
     const id = `APT-${String(seqResult.rows[0].val).padStart(4, "0")}`;
     const result = await req.pool.query(
-      `INSERT INTO appointments (id, clinic_id, patient_id, patient_name, date, time, reason, status)
-       VALUES ($1,$2,$3,$4,$5::date,$6,$7,$8) RETURNING *, to_char(date, 'YYYY-MM-DD') AS date`,
-      [id, req.clinicId, patientId || null, patientName, date, time, reason, status]
+      `INSERT INTO appointments (id, clinic_id, patient_id, patient_name, date, time, reason, status, source)
+       VALUES ($1,$2,$3,$4,$5::date,$6,$7,$8,$9) RETURNING *, to_char(date, 'YYYY-MM-DD') AS date`,
+      [id, req.clinicId, patientId || null, patientName, date, time, reason, status || 'confirmed', source || 'desk']
     );
     res.json(result.rows[0]);
   } catch (err) {

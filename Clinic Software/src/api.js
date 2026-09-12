@@ -59,5 +59,15 @@ export const apiDeleteTemplate = (id) =>
 export const apiSendWhatsApp = (patient, visit) =>
   fetch(`${BASE}/whatsapp/send`, { method: "POST", headers: headers(), body: JSON.stringify({ patient, visit }) }).then(r => r.json());
 
+export const apiGetWhatsAppBotStatus = () =>
+  fetch(`${BASE}/whatsapp/bot-status`, { headers: headers() }).then(r => r.json());
+
+export const apiSetWhatsAppClinic = () =>
+  fetch(`${BASE}/whatsapp/set-clinic`, { method: "POST", headers: headers() }).then(r => r.json());
+
+export const apiTestWhatsAppBot = (text, phone) =>
+  fetch(`${BASE}/whatsapp/test-bot`, { method: "POST", headers: headers(), body: JSON.stringify({ text, phone }) }).then(r => r.json());
+
+
 export const apiWhatsAppStatus = () =>
   fetch(`${BASE}/whatsapp/status`, { headers: headers() }).then(r => r.json());

@@ -47,6 +47,7 @@ export default function Login({ onLogin, onShowRegister }) {
     setLoading(false);
     if (res.token) {
       localStorage.setItem("token", res.token);
+      if (res.user) localStorage.setItem("user", JSON.stringify(res.user));
       onLogin(res.user);
     } else {
       setErr(res.error || "Invalid credentials. Please verify your clinic code, username, and password.");
