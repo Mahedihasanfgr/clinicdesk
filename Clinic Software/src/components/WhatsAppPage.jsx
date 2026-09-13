@@ -5,7 +5,6 @@ import {
   MessageSquare,
   CheckCircle2,
   AlertCircle,
-  QrCode,
   Smartphone,
   RefreshCw,
   ShieldCheck,
@@ -72,29 +71,18 @@ export default function WhatsAppPage() {
     }
   };
 
+  const BASE = import.meta.env.VITE_API_URL || "/api";
+
   const fetchStatus = async () => {
     setIsRefreshing(true);
     try {
       let data = null;
 
-      // 1. Try proxied / local /api/whatsapp/status
+      // Use configured API base URL (works both locally and on deployed version)
       try {
-        const res = await fetch(`/api/whatsapp/status?t=${Date.now()}`);
+        const res = await fetch(`${BASE}/whatsapp/status?t=${Date.now()}`);
         if (res.ok) data = await res.json();
       } catch {}
-
-      // 2. Fallback to direct localhost:5000
-      if (!data || (!data.connected && !data.qr)) {
-        try {
-          const localRes = await fetch(`http://localhost:5000/api/whatsapp/status?t=${Date.now()}`);
-          if (localRes.ok) {
-            const localData = await localRes.json();
-            if (localData.qr || localData.connected) {
-              data = localData;
-            }
-          }
-        } catch {}
-      }
 
       setLastChecked(new Date().toLocaleTimeString());
 
@@ -414,30 +402,7 @@ export default function WhatsAppPage() {
               </div>
             )}
 
-            <div style={{ textAlign: "center", marginTop: 8 }}>
-              <a
-                href="http://localhost:5000/api/whatsapp/qr?view=html"
-                target="_blank"
-                rel="noreferrer"
-                style={{
-                  textDecoration: "none",
-                  display: "inline-flex",
-                  alignItems: "center",
-                  gap: 6,
-                  fontSize: 12.5,
-                  color: tokens.colors.primary[700],
-                  fontWeight: 600,
-                  background: tokens.colors.primary[50],
-                  border: `1px solid ${tokens.colors.primary[200]}`,
-                  padding: "8px 16px",
-                  borderRadius: tokens.radii.md,
-                }}
-                className="btn-interactive"
-              >
-                <QrCode size={15} color={tokens.colors.primary[600]} />
-                <span>Open Standalone QR Window (New Tab)</span>
-              </a>
-            </div>
+
           </div>
         )}
       </Card>
